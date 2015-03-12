@@ -40,7 +40,7 @@ function gateway (table, obj, callback) {
 				callback(err, results);
 				conn.release();
 			});
-		 	console.log(query.sql);
+		 	//console.log(query.sql);
 			return self;
 		}
 	};
