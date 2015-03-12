@@ -22,14 +22,14 @@ I'll actually write a config for this sometime, but for now....
 Open the lib/mysql-connection.js file and fix up:
 ``` javascript
 pool.add('MASTER', {
-    database: 'nmt',
+    database: 'testing',
     host: 'localhost',
     user: 'master_user',
     password: 'something super secret and special'
 });
 
 pool.add('SLAVE', {
-    database: 'nmt',
+    database: 'testing',
     host: 'localhost',
     user: 'slave_user',
     password: 'something else that is super secret'
