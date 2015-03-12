@@ -16,6 +16,26 @@ This is simply a quick and easy way to implement CRUD for a database
 npm install joedulin/node-mysql-gateway
 ```
 
+#### Configuration
+I'll actually write a config for this sometime, but for now....
+
+Open the lib/mysql-connection.js file and fix up:
+``` javascript
+pool.add('MASTER', {
+    database: 'nmt',
+    host: 'localhost',
+    user: 'master_user',
+    password: 'something super secret and special'
+});
+
+pool.add('SLAVE', {
+    database: 'nmt',
+    host: 'localhost',
+    user: 'slave_user',
+    password: 'something else that is super secret'
+});
+```
+
 ### Initialize
 ``` javascript
 var msyqlGateway = require('mysql-gateway'),
