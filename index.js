@@ -66,33 +66,33 @@ function gateway (table, obj, callback) {
 		});
 	}
 
-	self.insert = function (values, callback) {
+	self.insert = function (table_obj, callback) {
 		callback = callback || function () { return false; };
 		var q = "INSERT INTO ?? SET ?";
-		var replace = [ self.table, values ];
+		var replace = [ table_obj.table, table_obj.getColumnValues() ];
 		self.query('MASTER', q, replace, function (err, result) {
-			if (typeof self.id !== 'undefined') {
-				self.id = result.insertId;
+			if (typeof table_obj.id !== 'undefined') {
+				table_obj.id = result.insertId;
 			}
 			callback(err, result);
 		});
 		return self;
 	};
 
-	self.update = function (values, callback) {
+	self.update = function (table_obj, callback) {
 		callback = callback || function () { return false; };
 		var q = "UPDATE ?? SET ?";
-		var replace = [ self.table, values ];
+		var replace = [ table_obj.table, table_obj.getColumnValues() ];
 		self.query('MASTER', q, replace, callback);
 		return self;
 	};
 
-	self.save = function (values, callback) {
+	self.save = function (table_obj, callback) {
 		callback = callback || function () { return false; };
 		if (values[self.primaryKey] == null) {
-			self.insert(values, callback);
+			self.insert(table_obj, callback);
 		} else {
-			self.update(values, callback);
+			self.update(table_obj, callback);
 		}
 		return self;
 	};
