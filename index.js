@@ -89,7 +89,7 @@ function gateway (table, obj, callback) {
 
 	self.save = function (table_obj, callback) {
 		callback = callback || function () { return false; };
-		if (values[self.primaryKey] == null) {
+		if (table_obj[self.primaryKey] == null) {
 			self.insert(table_obj, callback);
 		} else {
 			self.update(table_obj, callback);
