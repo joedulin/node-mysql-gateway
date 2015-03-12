@@ -6,7 +6,7 @@
 	"dependencies": {
 		"clone": "1.0.x",
 		"deasync": "0.0.x",
-		"felixge/node-mysql": "2.5.x"
+		"mysql": "2.5.x"
 	},
 	"engine": "node >= 0.4.1"
 }
