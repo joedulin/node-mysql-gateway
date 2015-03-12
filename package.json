@@ -1,0 +1,12 @@
+{
+	"name": "mysql-gateway",
+	"version": "0.0.1",
+	"description": "Dynamically create gateway / table classes",
+	"author": "Joe Dulin <joe@dulinbanjos.com>",
+	"dependencies": {
+		"clone": "1.0.x",
+		"deasync": "0.0.x",
+		"felixge/node-mysql": "2.5.x"
+	},
+	"engine": "node >= 0.4.1"
+}
