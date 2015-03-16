@@ -126,6 +126,44 @@ table1.getByPk(1, callback);
 // SELECT `id`, `name`, `description` FROM `table1` WHERE id = 1;
 ```
 
+#### Simple Joins
+
+Using this gateway framework you can perform some simple table joins.
+
+``` javascript
+var joins = [
+    {
+        table: 'table1_table2',
+        left: 'table1.id',
+        right: 'table1_table2.table1_id'
+    },
+    {
+        table: 'table2',
+        left: 'table1_table2.table2_id',
+        right: 'table2.id'
+    }
+];
+var search_obj = { 'table1.name': 'bob' };
+table1.join(joins, search_obj, callback);
+
+/*
+    SELECT * FROM `table1`
+    JOIN `table1_table2` ON `table1.id` = `table1_table2.table1_id`
+    JOIN `table2` ON `table1_table2.table2_id` = `table2.id`
+    WHERE `table1.name` = 'bob';
+*/
+```
+
+But that is a little verbose. You can shorthand it a little with...
+
+``` javascript
+var joins = [ 'table1_table2', 'table2' ],
+    search_obj = { 'table1.name': 'bob' };
+table1.walk(joins, search_obj, callback);
+```
+
+Just note that walk requires foreign keys to be defined for the whole path. In the example table1_table2 has a foreign key for table1_table2.table1_id that references table1.id, and table1_table2.table2_id that references table2.id
+
 ### Table objects
 
 Gateway results are an array of table objects. These are simply JSON objects with the column: value of the table plus a couple of extra bits of info / functions.
