@@ -16,6 +16,8 @@ function gateway (table, obj, callback) {
 	//columns / keys
 	self.columns = [];
 	self.primaryKey = 'id';
+	self.references = {};
+	self.referencedBy = {};
 
 	self.getConnection = function (db, callback) {
 		db = db || 'SLAVE';
@@ -205,18 +207,26 @@ function gateway (table, obj, callback) {
 	};
 
 	self.join = function (joins, search_obj, callback) {
-		var	q = "SELECT ?? FROM ??",
+		var	q = "SELECT * FROM ??",
 			limit = false,
 			offset = false,
 			orderby = false,
 			orderby_direction = false,
-			replace
+			replace,
+			nest
 		;
+		if (search_obj.nest) {
+			nest = search_obj.nest;
+			delete search_obj.nest;
+		} else {
+			nest = true;
+		}
 		if (search_obj.columns) {
+			q = "SELECT ?? FROM ??";
 			replace = [ search_obj.columns, self.table ];
 			delete search_obj.columns;
 		} else {
-			replace = [ self.columns, self.table ];
+			replace = [ self.table ];
 		}
 		if (search_obj.limit) {
 			limit = search_obj.limit;
@@ -233,6 +243,9 @@ function gateway (table, obj, callback) {
 		if (search_obj.orderby_direction) {
 			orderby_direction = search_obj.orderby_direction;
 			delete search_obj.orderby_direction;
+		}
+		if (typeof joins.length == 'undefined') {
+			joins = [ joins ];
 		}
 		for (var i=0,join; join = joins[i]; i++) {
 			if (join.type) {
@@ -265,9 +278,21 @@ function gateway (table, obj, callback) {
 			q += ' OFFSET ?';
 			replace.push(offset);
 		}
-		self.query('SLAVE', q, replace, callback);
+		self.query('SLAVE', { sql: q, nestTables: nest }, replace, callback);
 		return self;
 	};
+
+	self.walk = function (path, search_obj, callback) {
+		search_obj = search_obj || {};
+		callback = callback || function () { return false; };
+		var joins = [];
+		var current_table = tables[self.table];
+		for (var i=0,t; t = path[i]; i++) {
+			joins.push(current_table.references[t]);
+			current_table = tables[t];
+		}
+		self.join(joins, search_obj, callback);
+	}
 
 	self.deleteRecord = function (primaryKey, callback) {
 		callback = callback || function () { return false; };
@@ -322,7 +347,7 @@ function table (obj) {
 	}
 	self.save = function (callback) {
 		callback = callback || function () { return false; };
-		gateway(self.table).save(self.getColumnValues(), callback);
+		gateway(self.table).save(self, callback);
 	};
 	self.deleteRecord = function (callback) {
 		callback = callback || function () { return false; };
@@ -373,7 +398,30 @@ pool.getConnection('SLAVE', function (err, conn) {
 			});
 		})
 		.on('end', function () {
-			initialize = true;
+			var q = "\
+			SELECT * \
+			FROM information_schema.TABLE_CONSTRAINTS i \
+			LEFT JOIN information_schema.KEY_COLUMN_USAGE k ON i.CONSTRAINT_NAME = k.CONSTRAINT_NAME \
+			WHERE i.CONSTRAINT_TYPE = 'FOREIGN KEY'\
+			AND i.TABLE_SCHEMA = DATABASE()\
+			";
+			conn.query(q, [], function (err, res) {
+				for (var n=0,fk; fk = res[n]; n++) {
+					tables[fk['TABLE_NAME']].references[fk['REFERENCED_TABLE_NAME']] = {
+						table: fk['REFERENCED_TABLE_NAME'],
+						left: fk['TABLE_NAME'] + '.' + fk['COLUMN_NAME'],
+						right: fk['REFERENCED_TABLE_NAME'] + '.' + fk['REFERENCED_COLUMN_NAME']
+					};
+					tables[fk['REFERENCED_TABLE_NAME']].references[fk['TABLE_NAME']] = {
+						table: fk['TABLE_NAME'],
+						left: fk['REFERENCED_TABLE_NAME'] + '.' + fk['REFERENCED_COLUMN_NAME'],
+						right: fk['TABLE_NAME'] + '.' + fk['COLUMN_NAME']
+					};
+					//self.foreignKeys.push(fk['REFERENCED_TABLE_NAME'] + '.' + fk['REFERENCED_COLUMN_NAME']);
+					//self.foreignKeys.push({ fk['REFERENCED_TABLE_NAME']: fk['REFERENCED_COLUMN_NAME'] });
+				}
+				initialize = true;
+			});
 		})
 	;
 });
