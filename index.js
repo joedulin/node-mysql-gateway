@@ -171,7 +171,7 @@ function gateway (table, obj, callback) {
 			escape_column = seach_obj.escape_column;
 			delete seach_obj.escape_column;
 		}
-		if (seach_obj.escape_value != 'undefined') {
+		if (search_obj.escape_value != 'undefined') {
 			escape_value = search_obj.escape_value;
 			delete search_obj.escape_value;
 		}
