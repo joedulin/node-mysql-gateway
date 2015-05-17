@@ -167,11 +167,11 @@ function gateway (table, obj, callback) {
 			orderby_direction = search_obj.orderby_direction;
 			delete search_obj.orderby_direction;
 		}
-		if (search_obj.escape_column) {
+		if (search_obj.escape_column != 'undefined') {
 			escape_column = seach_obj.escape_column;
 			delete seach_obj.escape_column;
 		}
-		if (seach_obj.escape_value) {
+		if (seach_obj.escape_value != 'undefined') {
 			escape_value = search_obj.escape_value;
 			delete search_obj.escape_value;
 		}
@@ -232,6 +232,8 @@ function gateway (table, obj, callback) {
 			offset = false,
 			orderby = false,
 			orderby_direction = false,
+			escape_column = true,
+			escape_value = true,
 			replace,
 			nest
 		;
@@ -264,6 +266,14 @@ function gateway (table, obj, callback) {
 			orderby_direction = search_obj.orderby_direction;
 			delete search_obj.orderby_direction;
 		}
+		if (search_obj.escape_column != 'undefined') {
+			escape_column = search_obj.escape_column;
+			delete search_obj.escape_column;
+		}
+		if (search_obj.escape_value != 'undefined') {
+			escape_value = search_obj.escape_value;
+			delete search_obj.escape_value;
+		}
 		if (typeof joins.length == 'undefined') {
 			joins = [ joins ];
 		}
@@ -278,10 +288,45 @@ function gateway (table, obj, callback) {
 			q += (join.operator) ? ' ' + join.operator + ' ??' : ' = ??';
 			replace.push(join.right);
 		}
+		/*
 		if (size(search_obj) > 0) {
 			q += ' WHERE ?';
 			replace.push(search_obj);
 		}
+		*/
+
+		if (size(search_obj) > 0) {
+			q += ' WHERE';
+			var first = true;
+			for (var k in search_obj) {
+				if (first) {
+					q += (escape_column) ? ' ??' : ' ' + k;
+					first = false;
+				} else {
+					q += (escape_column) ? ' AND ??' : ' ' + k;
+				}
+				if (escape_column) { 
+					replace.push(k);
+				}
+				if (typeof search_obj[k] == 'object') {
+					if (escape_value) {
+						q += ' ' + search_obj[k].operator + ' ?';
+						replace.push(search_obj[k].value);
+					} else {
+						q += ' ' + search_obj[k].operator + ' ' + search_obj[k].value;
+					}
+				} else {
+					if (escape_value) {
+						q += ' = ?';
+						replace.push(search_obj[k]);
+					} else {
+						q += ' = ' + search_obj[k];
+					}
+				}
+			}
+		}
+
+
 		if (orderby) {
 			q += ' ORDERBY ??';
 			replace.push(orderby);
