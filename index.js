@@ -141,6 +141,8 @@ function gateway (table, obj, callback) {
 			offset = false,
 			orderby = false,
 			orderby_direction = false,
+			escape_column = true,
+			escape_value = true,
 			replace
 		;
 		if (search_obj.columns) {
@@ -165,23 +167,41 @@ function gateway (table, obj, callback) {
 			orderby_direction = search_obj.orderby_direction;
 			delete search_obj.orderby_direction;
 		}
+		if (search_obj.escape_column) {
+			escape_column = seach_obj.escape_column;
+			delete seach_obj.escape_column;
+		}
+		if (seach_obj.escape_value) {
+			escape_value = search_obj.escape_value;
+			delete search_obj.escape_value;
+		}
 		if (size(search_obj) > 0) {
 			q += ' WHERE';
 			var first = true;
 			for (var k in search_obj) {
 				if (first) {
-					q += ' ??';
+					q += (escape_column) ? ' ??' : ' ' + k;
 					first = false;
 				} else {
-					q += ' AND ??';
+					q += (escape_column) ? ' AND ??' : ' ' + k;
 				}
-				replace.push(k);
+				if (escape_column) { 
+					replace.push(k);
+				}
 				if (typeof search_obj[k] == 'object') {
-					q += ' ' + search_obj[k].operator + ' ?';
-					replace.push(search_obj[k].value);
+					if (escape_value) {
+						q += ' ' + search_obj[k].operator + ' ?';
+						replace.push(search_obj[k].value);
+					} else {
+						q += ' ' + search_obj[k].operator + ' ' + search_obj[k].value;
+					}
 				} else {
-					q += ' = ?';
-					replace.push(search_obj[k]);
+					if (escape_value) {
+						q += ' = ?';
+						replace.push(search_obj[k]);
+					} else {
+						q += ' = ' + search_obj[k];
+					}
 				}
 			}
 		}
