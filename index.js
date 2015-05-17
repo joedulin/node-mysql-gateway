@@ -169,7 +169,7 @@ function gateway (table, obj, callback) {
 		}
 		if (search_obj.escape_column != 'undefined') {
 			escape_column = search_obj.escape_column;
-			delete seach_obj.escape_column;
+			delete search_obj.escape_column;
 		}
 		if (search_obj.escape_value != 'undefined') {
 			escape_value = search_obj.escape_value;
