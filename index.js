@@ -170,11 +170,11 @@ function gateway (table, obj, callback) {
 			orderby_direction = search_obj.orderby_direction;
 			delete search_obj.orderby_direction;
 		}
-		if (search_obj.escape_column != 'undefined') {
+		if (typeof search_obj.escape_column != 'undefined') {
 			escape_column = search_obj.escape_column;
 			delete search_obj.escape_column;
 		}
-		if (search_obj.escape_value != 'undefined') {
+		if (typeof search_obj.escape_value != 'undefined') {
 			escape_value = search_obj.escape_value;
 			delete search_obj.escape_value;
 		}
