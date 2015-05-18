@@ -83,8 +83,11 @@ function gateway (table, obj, callback) {
 
 	self.update = function (table_obj, callback) {
 		callback = callback || function () { return false; };
-		var q = "UPDATE ?? SET ?";
-		var replace = [ table_obj.table, table_obj.getColumnValues() ];
+		var q = "UPDATE ?? SET ? WHERE ?? = ?";
+		var values = table_obj.getColumnValues();
+		var id = values[table_obj.primaryKey];
+		delete values[table_obj.primaryKey];
+		var replace = [ table_obj.table, values, table_obj.primaryKey, id ];
 		self.query('MASTER', q, replace, callback);
 		return self;
 	};
