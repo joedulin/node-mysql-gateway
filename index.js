@@ -183,7 +183,7 @@ function gateway (table, obj, callback) {
 					q += (escape_column) ? ' ??' : ' ' + k;
 					first = false;
 				} else {
-					q += (escape_column) ? ' AND ??' : ' ' + k;
+					q += (escape_column) ? ' AND ??' : ' AND ' + k;
 				}
 				if (escape_column) { 
 					replace.push(k);
@@ -303,7 +303,7 @@ function gateway (table, obj, callback) {
 					q += (escape_column) ? ' ??' : ' ' + k;
 					first = false;
 				} else {
-					q += (escape_column) ? ' AND ??' : ' ' + k;
+					q += (escape_column) ? ' AND ??' : ' AND ' + k;
 				}
 				if (escape_column) { 
 					replace.push(k);
